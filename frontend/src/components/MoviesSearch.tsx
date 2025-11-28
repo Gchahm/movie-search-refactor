@@ -3,6 +3,7 @@ import {Movie} from '@movie-search/types';
 import MovieCard from '@/components/MovieCard';
 import Pagination from '@/components/pagination';
 import {useEffect, useState} from "react";
+import {ErrorView} from "@/components/ErrorView";
 
 export type MoviesSearchProps = {
     searchQuery: string;
@@ -80,11 +81,7 @@ export const MoviesSearch = (props: MoviesSearchProps) => {
     }
 
     if (isError) {
-        return (
-            <div className="text-center py-12">
-                <p className="text-xl text-muted-foreground">Error fetching movies</p>
-            </div>
-        )
+        return <ErrorView message="Error fetching movies"/>
     }
 
 

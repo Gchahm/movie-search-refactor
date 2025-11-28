@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react'; // BUG: Unnecessary useEffect import
+import {useState} from 'react';
 import SearchBar from '@/components/searchBar';
 import {MoviesSearch} from "@/components/MoviesSearch";
 
