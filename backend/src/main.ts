@@ -1,12 +1,13 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {ValidationPipe} from "@nestjs/common";
+import {getEnvConfig} from './config/env.config';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
-    // BUG: Hardcoded CORS origins, should use env vars
+    const env = getEnvConfig();
     app.enableCors({
-        origin: ['http://localhost:3000'],
+        origin: env.CORS_ORIGIN,
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,
     });
@@ -15,8 +16,7 @@ async function bootstrap() {
             transform: true,
         }),
     );
-    // BUG: No error handling
-    await app.listen(process.env.PORT || 3001);
+    await app.listen(env.PORT);
     console.log(`Application is running on: ${await app.getUrl()}`);
 }
 

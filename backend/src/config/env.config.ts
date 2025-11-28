@@ -1,0 +1,49 @@
+interface EnvConfig {
+    PORT: number;
+    OMDB_API_KEY: string;
+    CORS_ORIGIN: string[];
+    NODE_ENV: string;
+}
+
+function validateEnv(): EnvConfig {
+    const requiredEnvVars = ['OMDB_API_KEY', 'CORS_ORIGIN'];
+    const missingVars: string[] = [];
+
+    for (const envVar of requiredEnvVars) {
+        if (!process.env[envVar]) {
+            missingVars.push(envVar);
+        }
+    }
+
+    if (missingVars.length > 0) {
+        console.error('❌ Missing required environment variables:');
+        missingVars.forEach(varName => {
+            console.error(`   - ${varName}`);
+        });
+        console.error('\nPlease set these environment variables and restart the application.');
+        process.exit(1);
+    }
+
+    // Validate CORS_ORIGIN format
+    const corsOrigins = process.env.CORS_ORIGIN!.split(',').map(origin => origin.trim());
+    if (corsOrigins.length === 0 || corsOrigins.some(origin => !origin)) {
+        console.error('❌ CORS_ORIGIN must contain at least one valid origin');
+        process.exit(1);
+    }
+
+    return {
+        PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 3001,
+        OMDB_API_KEY: process.env.OMDB_API_KEY!,
+        CORS_ORIGIN: corsOrigins,
+        NODE_ENV: process.env.NODE_ENV || 'development',
+    };
+}
+
+let env: EnvConfig | undefined;
+
+export const getEnvConfig = (): EnvConfig => {
+    if (!env) {
+        env = validateEnv();
+    }
+    return env;
+};
