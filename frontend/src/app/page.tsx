@@ -5,14 +5,13 @@ import SearchBar from '@/components/searchBar';
 import {useSearchMovies} from "@/hooks/useMovies";
 import {QueryHandler} from "@/components/QueryHandler";
 import {MoviesList} from "@/components/MoviesList";
-import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
 import {useCurrentPage} from "@/hooks/useCurrentPage";
 import {replaceSearchParams} from "@/lib/url";
 
 
 export default function SearchPage() {
     const router = useRouter();
-    const pathname = usePathname();
     const searchParams = useSearchParams();
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -24,6 +23,7 @@ export default function SearchPage() {
         if (q !== searchQuery) {
             setSearchQuery(q);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
 
 
@@ -35,7 +35,7 @@ export default function SearchPage() {
                 params.delete('q');
             }
         });
-         
+
     }, [searchQuery, router]);
 
     const handleSearch = (query: string) => {

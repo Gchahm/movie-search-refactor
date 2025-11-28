@@ -34,7 +34,6 @@ export const useInvalidateQueries = () => {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const q = searchParams?.get('q') ?? '';
     const pageParam = searchParams?.get('page');
     const page = pageParam ? parseInt(pageParam, 10) || 1 : 1;
 
@@ -48,7 +47,7 @@ export const useInvalidateQueries = () => {
         }
 
         await queryClient.invalidateQueries({queryKey: ['movies', 'search']});
-    }, [pathname, q, page, queryClient]);
+    }, [pathname, page, queryClient]);
 };
 
 export const useAddToFavorites = () => {

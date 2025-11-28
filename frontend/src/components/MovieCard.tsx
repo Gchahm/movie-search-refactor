@@ -94,6 +94,7 @@ const MovieCard = React.memo(({movie, isFavorite, isFavoriteLoading, onToggleFav
         </div>
     );
 });
+MovieCard.displayName = "MovieCard";
 
 export default MovieCard;
 
