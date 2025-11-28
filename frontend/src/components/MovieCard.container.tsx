@@ -20,7 +20,7 @@ export const MovieCardContainer = (props: Omit<MovieCardProps, 'onToggleFavorite
         } catch (e) {
             // Basic error reporting; replace with your toast/notification system if available
             console.error('Failed to toggle favorite', e);
-            // eslint-disable-next-line no-alert
+             
             alert('Something went wrong updating favorites. Please try again.');
         }
     };

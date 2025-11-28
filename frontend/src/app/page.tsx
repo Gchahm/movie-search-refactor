@@ -35,7 +35,7 @@ export default function SearchPage() {
                 params.delete('q');
             }
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [searchQuery, router]);
 
     const handleSearch = (query: string) => {

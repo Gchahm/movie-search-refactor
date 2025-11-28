@@ -26,7 +26,7 @@ export const useCurrentPage = (): [number, Dispatch<SetStateAction<number>>] => 
                 params.delete('page');
             }
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [currentPage, pathname, router]);
 
     return [currentPage, setCurrentPage];
