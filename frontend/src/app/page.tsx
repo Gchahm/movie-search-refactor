@@ -7,6 +7,7 @@ import {QueryHandler} from "@/components/QueryHandler";
 import {MoviesList} from "@/components/MoviesList";
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {useCurrentPage} from "@/hooks/useCurrentPage";
+import {replaceSearchParams} from "@/lib/url";
 
 
 export default function SearchPage() {
@@ -25,34 +26,22 @@ export default function SearchPage() {
         }
     }, [searchParams]);
 
-    // Note: don't auto-reset page on `searchQuery` changes here because
-    // URL/back-forward updates of `q` should preserve `page`. We'll reset
-    // page explicitly when user submits a new search.
 
-    // Push state to URL whenever query changes (page is handled by useCurrentPage)
     useEffect(() => {
-        const params = new URLSearchParams(searchParams?.toString());
-
-        // Manage query param `q`
-        if (searchQuery) {
-            params.set('q', searchQuery);
-        } else {
-            params.delete('q');
-        }
-
-        const next = params.toString();
-        const current = searchParams?.toString() ?? '';
-        if (next !== current) {
-            const url = next ? `${pathname}?${next}` : pathname;
-            // replace to avoid polluting history for typing/pagination
-            router.replace(url);
-        }
+        replaceSearchParams(router, (params) => {
+            if (searchQuery) {
+                params.set('q', searchQuery);
+            } else {
+                params.delete('q');
+            }
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchQuery, pathname, router]);
+    }, [searchQuery, router]);
 
     const handleSearch = (query: string) => {
-        setSearchQuery(query);
+        // Reset page to 1 via state (URL deletion handled by useCurrentPage)
         setCurrentPage(1);
+        setSearchQuery(query);
     };
 
     const result = useSearchMovies(searchQuery, currentPage);
