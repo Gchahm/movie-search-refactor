@@ -2,11 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { movieApi } from '@/lib/api';
 
 // BUG: Missing proper TypeScript types
-export const useSearchMovies = (query: string, page: number = 1, enabled: boolean = false) => {
+export const useSearchMovies = (query: string, page: number = 1) => {
   return useQuery({
     queryKey: ['movies', 'search', query, page],
     queryFn: () => movieApi.searchMovies(query, page),
-    enabled: enabled && query.length > 0,
+    enabled: query.length > 0,
     // BUG: No error handling configuration
     // BUG: No retry configuration
   });
