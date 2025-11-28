@@ -30,7 +30,7 @@ export class MoviesService {
         return {
           title: movie.Title,
           imdbID: movie.imdbID,
-          year: parseInt(movie.Year), // BUG: also handles "1999-2000" format incorrectly
+          year: movie.Year,
           poster: movie.Poster,
           isFavorite,
         };

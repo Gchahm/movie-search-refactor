@@ -4,11 +4,11 @@ import {useCallback} from 'react';
 import {usePathname, useSearchParams} from 'next/navigation';
 import {SearchMoviesResponse} from "@movie-search/types";
 
-export const useSearchMovies = (query: string, page: number = 1): UseQueryResult<SearchMoviesResponse> => {
+export const useSearchMovies = (q: string, page: number = 1): UseQueryResult<SearchMoviesResponse> => {
     return useQuery({
-        queryKey: ['movies', 'search', query, page],
-        queryFn: () => movieApi.searchMovies(query, page),
-        enabled: query.length > 0,
+        queryKey: ['movies', 'search', q, page],
+        queryFn: () => movieApi.searchMovies({q, page}),
+        enabled: q.length > 0,
         retry: 3,
         retryDelay: 1000,
         // BUG: No error handling configuration
@@ -44,10 +44,10 @@ export const useInvalidateQueries = () => {
             return;
         }
         if (pathname === '/') {
-            await queryClient.invalidateQueries({queryKey: ['movies', 'favorites'], exact: true});
+            await queryClient.invalidateQueries({queryKey: ['movies', 'favorites']});
         }
 
-        await queryClient.invalidateQueries({queryKey: ['movies', 'search'], exact: true});
+        await queryClient.invalidateQueries({queryKey: ['movies', 'search']});
     }, [pathname, q, page, queryClient]);
 };
 
