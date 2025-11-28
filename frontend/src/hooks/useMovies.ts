@@ -9,9 +9,6 @@ export const useSearchMovies = (q: string, page: number = 1): UseQueryResult<Sea
         queryKey: ['movies', 'search', q, page],
         queryFn: () => movieApi.searchMovies({q, page}),
         enabled: q.length > 0,
-        retry: 3,
-        retryDelay: 1000,
-        // BUG: No error handling configuration
     });
 };
 
@@ -19,8 +16,6 @@ export const useFavorites = (page: number = 1): UseQueryResult<SearchMoviesRespo
     return useQuery({
         queryKey: ['movies', 'favorites', page],
         queryFn: () => movieApi.getFavorites(page),
-        retry: 3,
-        retryDelay: 1000,
     });
 };
 
