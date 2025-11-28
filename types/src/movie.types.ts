@@ -19,7 +19,7 @@ export interface FavoritesResponse {
     data: {
         favorites: Movie[];
         count: number;
-        totalResults: number; // BUG: Should be string to match API
+        totalResults: string;
         currentPage: number;
         totalPages: number;
     };

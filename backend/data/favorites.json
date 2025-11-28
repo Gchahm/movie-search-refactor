@@ -10,5 +10,29 @@
     "imdbID": "tt7654321",
     "year": 2022,
     "poster": "N/A"
+  },
+  {
+    "title": "Batman Begins",
+    "imdbID": "tt0372784",
+    "year": 2005,
+    "poster": "https://example.com/poster.jpg"
+  },
+  {
+    "title": "The Dark Knight",
+    "imdbID": "tt0468569",
+    "year": 2008,
+    "poster": "https://example.com/poster2.jpg"
+  },
+  {
+    "title": "The Matrix",
+    "imdbID": "tt0133093",
+    "year": 1999,
+    "poster": "https://example.com/matrix.jpg"
+  },
+  {
+    "title": "Interstellar",
+    "imdbID": "tt0816692",
+    "year": 2014,
+    "poster": "https://example.com/interstellar.jpg"
   }
 ]
