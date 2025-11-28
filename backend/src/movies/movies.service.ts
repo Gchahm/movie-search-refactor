@@ -26,8 +26,7 @@ export class MoviesService {
       const favorites = await this.favoritesStorage.getFavoritesRecord();
 
       const formattedResponse = movies.map((movie: OmdbMovie): Movie => {
-        // BUG: Case-sensitive comparison - some IDs might have different casing
-        const isFavorite = favorites[movie.imdbID] ?? false;
+        const isFavorite = favorites[movie.imdbID.toLowerCase()] ?? false;
         return {
           title: movie.Title,
           imdbID: movie.imdbID,
