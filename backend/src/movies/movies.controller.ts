@@ -23,7 +23,7 @@ export class MoviesController {
 
     @Delete('favorites/:imdbID')
     removeFromFavorites(@Param() params: ImdbParamDto): Promise<void> {
-        return this.moviesService.removeFromFavorites(params.imdbID);
+        return this.moviesService.removeFromFavorites(params);
     }
 
     @Get('favorites/list')
