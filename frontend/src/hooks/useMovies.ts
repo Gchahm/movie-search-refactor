@@ -53,7 +53,6 @@ export const useAddToFavorites = () => {
         onSuccess: async () => {
             await invalidateCurrent();
         },
-        // BUG: No error handling
     });
 };
 
@@ -65,7 +64,6 @@ export const useRemoveFromFavorites = () => {
         onSuccess: async () => {
             await invalidateCurrent();
         },
-        // BUG: No error handling
     });
 };
 
