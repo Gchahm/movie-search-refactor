@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react'; // BUG: Unnecessary useEffect import
+import { useState } from 'react'; // BUG: Unnecessary useEffect import
 import { useSearchMovies, useAddToFavorites, useRemoveFromFavorites } from '@/hooks/useMovies';
-import { Movie } from '@/types/movie';
+import { Movie } from '@movie-search/types';
 import SearchBar from '@/components/searchBar';
 import MovieCard from '@/components/MovieCard';
 import Pagination from '@/components/pagination';

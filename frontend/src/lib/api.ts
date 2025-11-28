@@ -1,4 +1,4 @@
-import { Movie, SearchMoviesResponse, FavoritesResponse } from '@/types/movie';
+import { Movie, SearchMoviesResponse, FavoritesResponse } from '@movie-search/types';
 
 // BUG: Hardcoded API URL, should use env var
 const API_BASE_URL = 'http://localhost:3001/movies';

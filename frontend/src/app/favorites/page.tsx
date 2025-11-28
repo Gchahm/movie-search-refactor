@@ -6,7 +6,7 @@ import Pagination from "@/components/pagination";
 
 import { Button } from "@/components/ui/button";
 import { useAddToFavorites, useFavorites, useRemoveFromFavorites } from "@/hooks/useMovies";
-import { Movie } from "@/types/movie";
+import { Movie } from "@movie-search/types";
 import Link from "next/link";
 
 const Favorites = () => {
