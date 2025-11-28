@@ -1,4 +1,5 @@
 import {Movie, MovieSchema, SearchMoviesQuery, SearchMoviesQueryDto, SearchMoviesResponse} from '@movie-search/types';
+import {getErrorMessage, isAbortError} from '@/lib/errors';
 
 // Build base URL from env and normalize to avoid double slashes
 function normalizeBaseUrl(url: string): string {
@@ -34,9 +35,17 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
         const parseBody = async () => (isJson ? await res.json() : await res.text());
 
         if (!res.ok) {
-            const body: any = await parseBody().catch(() => undefined);
-            const message = (body && (body.message || body.error)) || `Request failed with status ${res.status}`;
-            throw new ApiError(message, res.status);
+            const body: unknown = await parseBody().catch(() => undefined);
+            let message: string | undefined;
+            if (typeof body === 'string') {
+                message = body;
+            } else if (body && typeof body === 'object') {
+                const maybeMsg = (body as Record<string, unknown>).message;
+                const maybeErr = (body as Record<string, unknown>).error;
+                if (typeof maybeMsg === 'string') message = maybeMsg;
+                else if (typeof maybeErr === 'string') message = maybeErr;
+            }
+            throw new ApiError(message || `Request failed with status ${res.status}`, res.status);
         }
 
         // If no content
@@ -44,8 +53,8 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
         const data = (await parseBody()) as T;
         return data;
-    } catch (err: any) {
-        if (err.name === 'AbortError') {
+    } catch (err: unknown) {
+        if (isAbortError(err)) {
             throw new ApiError('Request timed out. Please try again.', 408);
         }
         if (err instanceof ApiError) {
@@ -75,9 +84,9 @@ export const movieApi = {
         const {q, page} = SearchMoviesQuery.parse(query);
         try {
             return await request<SearchMoviesResponse>(`/search?q=${q}&page=${page}`);
-        } catch (e: any) {
+        } catch (e: unknown) {
             // Provide a user-friendly message while preserving original
-            const msg = e?.message || 'Failed to search for movies. Please try again later.';
+            const msg = getErrorMessage(e, 'Failed to search for movies. Please try again later.');
             throw new Error(msg);
         }
     },
@@ -86,8 +95,8 @@ export const movieApi = {
         assertPositivePage(page);
         try {
             return await request<SearchMoviesResponse>(`/favorites/list?page=${page}`);
-        } catch (e: any) {
-            const msg = e?.message || 'Failed to get favorites';
+        } catch (e: unknown) {
+            const msg = getErrorMessage(e, 'Failed to get favorites');
             throw new Error(msg);
         }
     },
@@ -100,8 +109,8 @@ export const movieApi = {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(validated),
             });
-        } catch (e: any) {
-            const msg = e?.message || 'Failed to add movie to favorites';
+        } catch (e: unknown) {
+            const msg = getErrorMessage(e, 'Failed to add movie to favorites');
             throw new Error(msg);
         }
     },
@@ -110,8 +119,8 @@ export const movieApi = {
         assertNonEmpty(imdbID, 'imdbID');
         try {
             await request<void>(`/favorites/${encodeURIComponent(imdbID)}`, {method: 'DELETE'});
-        } catch (e: any) {
-            const msg = e?.message || 'Failed to remove movie from favorites';
+        } catch (e: unknown) {
+            const msg = getErrorMessage(e, 'Failed to remove movie from favorites');
             throw new Error(msg);
         }
     },
