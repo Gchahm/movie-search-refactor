@@ -15,11 +15,15 @@ export const MoviesList = (props: MoviesListProps) => {
     const {data: {movies, totalPages}} = response;
 
     const handlePageChange = (page: number) => {
-        // BUG: No validation
+        if (!Number.isFinite(page) || !Number.isInteger(page)) {
+            return;
+        }
+
         if (page >= 1 && page <= totalPages) {
             onPageClick(page);
-            // BUG: Using window directly, should check if in browser
-            window.scrollTo({top: 0, behavior: "smooth"});
+            if (typeof window !== 'undefined') {
+                window.scrollTo({top: 0, behavior: "smooth"});
+            }
         }
     };
 
