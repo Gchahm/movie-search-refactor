@@ -4,7 +4,6 @@ import {useFavorites} from "@/hooks/useMovies";
 import {QueryHandler} from "@/components/QueryHandler";
 import {MoviesList} from "@/components/MoviesList";
 import {useCurrentPage} from "@/hooks/useCurrentPage";
-import {useEffect} from "react";
 
 const Favorites = () => {
     const [currentPage, setCurrentPage] = useCurrentPage();
