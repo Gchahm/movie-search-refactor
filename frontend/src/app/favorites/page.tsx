@@ -1,12 +1,12 @@
 "use client";
 
-import {useState} from "react";
 import {useFavorites} from "@/hooks/useMovies";
 import {QueryHandler} from "@/components/QueryHandler";
 import {MoviesList} from "@/components/MoviesList";
+import {useCurrentPage} from "@/hooks/useCurrentPage";
 
 const Favorites = () => {
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useCurrentPage();
     const result = useFavorites(currentPage);
 
     return (

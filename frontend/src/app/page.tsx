@@ -1,11 +1,12 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useState} from 'react';
 import SearchBar from '@/components/searchBar';
 import {useSearchMovies} from "@/hooks/useMovies";
 import {QueryHandler} from "@/components/QueryHandler";
 import {MoviesList} from "@/components/MoviesList";
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import {useCurrentPage} from "@/hooks/useCurrentPage";
 
 
 export default function SearchPage() {
@@ -14,19 +15,13 @@ export default function SearchPage() {
     const searchParams = useSearchParams();
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useCurrentPage();
 
     // Initialize state from URL and keep in sync when URL changes (back/forward navigation)
     useEffect(() => {
         const q = searchParams?.get('q') ?? '';
-        const pageParam = searchParams?.get('page');
-        const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
-
         if (q !== searchQuery) {
             setSearchQuery(q);
-        }
-        if (Number.isFinite(pageFromUrl) && pageFromUrl >= 1 && pageFromUrl !== currentPage) {
-            setCurrentPage(pageFromUrl);
         }
     }, [searchParams]);
 
@@ -34,7 +29,7 @@ export default function SearchPage() {
     // URL/back-forward updates of `q` should preserve `page`. We'll reset
     // page explicitly when user submits a new search.
 
-    // Push state to URL whenever query or page changes
+    // Push state to URL whenever query changes (page is handled by useCurrentPage)
     useEffect(() => {
         const params = new URLSearchParams(searchParams?.toString());
 
@@ -45,13 +40,6 @@ export default function SearchPage() {
             params.delete('q');
         }
 
-        // Manage `page` param (only keep it when > 1)
-        if (currentPage && currentPage > 1) {
-            params.set('page', String(currentPage));
-        } else {
-            params.delete('page');
-        }
-
         const next = params.toString();
         const current = searchParams?.toString() ?? '';
         if (next !== current) {
@@ -60,7 +48,7 @@ export default function SearchPage() {
             router.replace(url);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchQuery, currentPage, pathname, router]);
+    }, [searchQuery, pathname, router]);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
