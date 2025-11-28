@@ -1,12 +1,4 @@
-import {
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  Matches,
-  Min,
-  IsUrl,
-} from "class-validator";
-import { Type } from "class-transformer";
+import { IsNotEmpty, IsString, IsUrl, Matches } from "class-validator";
 
 export class MovieDto {
   @IsString()

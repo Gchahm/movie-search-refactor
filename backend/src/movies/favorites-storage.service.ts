@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { MovieDto } from "./dto/movie.dto";
 import { promises as fs } from "fs";
 import * as path from "path";
+import { Movie, MovieSchema } from "@movie-search/types";
 
 @Injectable()
 export class FavoritesStorageService {
@@ -21,10 +22,18 @@ export class FavoritesStorageService {
     }
   }
 
-  private async getFavorites(): Promise<MovieDto[]> {
+  private async getFavorites(): Promise<Movie[]> {
     try {
       const fileContent = await fs.readFile(this.favoritesFilePath, "utf-8");
-      return JSON.parse(fileContent);
+      const parsedMovies: unknown = JSON.parse(fileContent);
+      if (!Array.isArray(parsedMovies)) {
+        return [];
+      } else {
+        return parsedMovies
+          .map((movie) => MovieSchema.safeParse(movie))
+          .filter((z) => z.success)
+          .map((z) => z.data);
+      }
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
         return [];
@@ -38,7 +47,7 @@ export class FavoritesStorageService {
     const dataDir = path.dirname(this.favoritesFilePath);
     try {
       await fs.mkdir(dataDir, { recursive: true });
-    } catch (error) {
+    } catch {
       // Directory might already exist, ignore error
     }
   }
@@ -57,21 +66,6 @@ export class FavoritesStorageService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-
-  async findFavorite(imdbID: string): Promise<MovieDto> {
-    const favorites = await this.getFavorites();
-
-    const movie = favorites.find((movie) => movie.imdbID === imdbID);
-
-    if (!movie) {
-      throw new HttpException(
-        "Movie not found in favorites",
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    return movie;
   }
 
   async getFavoritesRecord(): Promise<Record<string, boolean>> {
@@ -115,7 +109,7 @@ export class FavoritesStorageService {
     page: number,
     pageSize: number,
   ): Promise<{
-    favorites: MovieDto[];
+    favorites: Movie[];
     total: number;
   }> {
     const currentFavorites = await this.getFavorites();

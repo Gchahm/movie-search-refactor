@@ -45,7 +45,7 @@ export class MoviesService {
           totalPages: Math.ceil(totalResults / getEnvConfig().omdbPageSize),
         },
       };
-    } catch (error) {
+    } catch {
       throw new Error(
         "Something went wrong while searching for movies. Please try again later.",
       );
