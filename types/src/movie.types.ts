@@ -5,6 +5,7 @@ export const MovieSchema = z.object({
     imdbID: z.string(),
     year: z.string(),
     poster: z.string(),
+    isFavorite: z.boolean().optional(),
 })
 
 export type Movie = z.infer<typeof MovieSchema>;
