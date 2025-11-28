@@ -1,0 +1,23 @@
+{
+  "name": "movie-search-refactor",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter backend start:dev",
+    "build": "pnpm -r build",
+    "build:frontend": "pnpm --filter frontend build",
+    "build:backend": "pnpm --filter backend build",
+    "start": "pnpm --parallel -r start",
+    "start:frontend": "pnpm --filter frontend start",
+    "start:backend": "pnpm --filter backend start:prod",
+    "lint": "pnpm -r lint",
+    "test": "pnpm --filter backend test",
+    "install:all": "pnpm install"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
