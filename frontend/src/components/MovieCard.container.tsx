@@ -2,29 +2,31 @@ import MovieCard, {MovieCardProps} from "@/components/MovieCard";
 import {useAddToFavorites, useRemoveFromFavorites} from "@/hooks/useMovies";
 
 
-export const MovieCardContainer = (props: Omit<MovieCardProps, 'onToggleFavorite'>) => {
+export const MovieCardContainer = (props: Omit<MovieCardProps, 'onToggleFavorite' | 'isFavoriteLoading'>) => {
     const {movie, isFavorite} = props;
 
     const addToFavorites = useAddToFavorites();
     const removeFromFavorites = useRemoveFromFavorites();
 
     const handleToggleFavorite = async () => {
-        // BUG: No error handling
-        // BUG: No loading state
-        // BUG: If mutation fails, UI state (isFavorite) is already updated optimistically
-        // BUG: No way to rollback if mutation fails
-        // BUG: Can be called multiple times rapidly, causing race conditions
+        // Avoid race conditions: block if any favorite mutation is in-flight
+        if (addToFavorites.isPending || removeFromFavorites.isPending) return;
+        try {
         if (isFavorite) {
-            await removeFromFavorites.mutateAsync(movie.imdbID);
+                await removeFromFavorites.mutateAsync(movie.imdbID);
         } else {
-            await addToFavorites.mutateAsync(movie);
+                await addToFavorites.mutateAsync(movie);
         }
-        // BUG: After mutation, searchResults still has old isFavorite value
-        // Query invalidation happens but component doesn't re-render with new data immediately
+        } catch (e) {
+            // Basic error reporting; replace with your toast/notification system if available
+            console.error('Failed to toggle favorite', e);
+            // eslint-disable-next-line no-alert
+            alert('Something went wrong updating favorites. Please try again.');
+        }
     };
 
 
     return (
-        <MovieCard {...props} onToggleFavorite={handleToggleFavorite}/>
+        <MovieCard {...props} isFavoriteLoading={addToFavorites.isPending || removeFromFavorites.isPending} onToggleFavorite={handleToggleFavorite}/>
     )
 }
