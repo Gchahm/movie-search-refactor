@@ -1,74 +1,82 @@
-import {Injectable} from '@nestjs/common';
-import {MovieDto} from './dto/movie.dto';
-import {FavoritesResponse, Movie, SearchMoviesResponse} from "@movie-search/types";
-import {GetFavoritesQueryDto} from "./dto/get-favorites.query.dto";
-import {SearchMoviesQueryDto} from "./dto/search-movies.query.dto";
-import {FavoritesStorageService} from "./favorites-storage.service";
-import {ImdbParamDto} from "./dto/imdb-param.dto";
-import {OmdbClientService, OmdbMovie} from "./omdb-client.service";
-
+import { Injectable } from "@nestjs/common";
+import { MovieDto } from "./dto/movie.dto";
+import { Movie, SearchMoviesResponse } from "@movie-search/types";
+import { GetFavoritesQueryDto } from "./dto/get-favorites.query.dto";
+import { SearchMoviesQueryDto } from "./dto/search-movies.query.dto";
+import { FavoritesStorageService } from "./favorites-storage.service";
+import { ImdbParamDto } from "./dto/imdb-param.dto";
+import { OmdbClientService, OmdbMovie } from "./omdb-client.service";
+import { getEnvConfig } from "../config/env.config";
 
 @Injectable()
 export class MoviesService {
+  constructor(
+    private readonly favoritesStorage: FavoritesStorageService,
+    private readonly omdbClientService: OmdbClientService,
+  ) {}
 
-    constructor(private readonly favoritesStorage: FavoritesStorageService,
-                private readonly omdbClientService: OmdbClientService) {
-    }
+  async getMovieByTitle(
+    query: SearchMoviesQueryDto,
+  ): Promise<SearchMoviesResponse> {
+    const { q: title, page } = query;
 
-    async getMovieByTitle(query: SearchMoviesQueryDto): Promise<SearchMoviesResponse> {
-        const {q: title, page} = query;
+    try {
+      const { movies, totalResults } =
+        await this.omdbClientService.searchMovies(title, page);
+      const favorites = await this.favoritesStorage.getFavoritesRecord();
 
-        try {
-            const response = await this.omdbClientService.searchMovies(title, page);
-            const favorites = await this.favoritesStorage.getFavoritesRecord();
-
-            const formattedResponse = response.movies.map((movie: OmdbMovie): Movie => {
-                // BUG: Case-sensitive comparison - some IDs might have different casing
-                const isFavorite = favorites[movie.imdbID] ?? false;
-                return {
-                    title: movie.Title,
-                    imdbID: movie.imdbID,
-                    year: parseInt(movie.Year), // BUG: also handles "1999-2000" format incorrectly
-                    poster: movie.Poster,
-                    isFavorite,
-                };
-            });
-
-            return {
-                data: {
-                    movies: formattedResponse,
-                    count: formattedResponse.length,
-                    totalResults: response.totalResults,
-                },
-            };
-        } catch (error) {
-            throw new Error('Something went wrong while searching for movies. Please try again later.');
-        }
-    }
-
-    async addToFavorites(movieToAdd: MovieDto): Promise<void> {
-        await this.favoritesStorage.addFavorite(movieToAdd);
-    }
-
-    async removeFromFavorites({imdbID}: ImdbParamDto): Promise<void> {
-        await this.favoritesStorage.removeFavorite(imdbID);
-    }
-
-    async getFavorites(queryDto: GetFavoritesQueryDto): Promise<FavoritesResponse> {
-        const {page, pageSize} = queryDto;
-
-        const {favorites, total} = await this.favoritesStorage.getFavoritesPaginated(page, pageSize);
-
-        // BUG: Inconsistent response structure
+      const formattedResponse = movies.map((movie: OmdbMovie): Movie => {
+        // BUG: Case-sensitive comparison - some IDs might have different casing
+        const isFavorite = favorites[movie.imdbID] ?? false;
         return {
-            data: {
-                favorites: favorites,
-                count: favorites.length,
-                totalResults: `${total}`,
-                currentPage: page,
-                totalPages: Math.ceil(total / pageSize),
-            },
+          title: movie.Title,
+          imdbID: movie.imdbID,
+          year: parseInt(movie.Year), // BUG: also handles "1999-2000" format incorrectly
+          poster: movie.Poster,
+          isFavorite,
         };
-    }
-}
+      });
 
+      return {
+        data: {
+          movies: formattedResponse,
+          count: formattedResponse.length,
+          totalResults,
+          currentPage: page,
+          totalPages: Math.ceil(totalResults / getEnvConfig().omdbPageSize),
+        },
+      };
+    } catch (error) {
+      throw new Error(
+        "Something went wrong while searching for movies. Please try again later.",
+      );
+    }
+  }
+
+  async addToFavorites(movieToAdd: MovieDto): Promise<void> {
+    await this.favoritesStorage.addFavorite(movieToAdd);
+  }
+
+  async removeFromFavorites({ imdbID }: ImdbParamDto): Promise<void> {
+    await this.favoritesStorage.removeFavorite(imdbID);
+  }
+
+  async getFavorites(
+    queryDto: GetFavoritesQueryDto,
+  ): Promise<SearchMoviesResponse> {
+    const { page, pageSize } = queryDto;
+
+    const { favorites, total: totalResults } =
+      await this.favoritesStorage.getFavoritesPaginated(page, pageSize);
+
+    return {
+      data: {
+        movies: favorites,
+        count: favorites.length,
+        totalResults,
+        currentPage: page,
+        totalPages: Math.ceil(totalResults / pageSize),
+      },
+    };
+  }
+}

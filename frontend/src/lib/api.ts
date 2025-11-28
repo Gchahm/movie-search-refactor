@@ -1,14 +1,14 @@
-import {Movie, SearchMoviesResponse, FavoritesResponse} from '@movie-search/types';
+import {Movie, SearchMoviesResponse} from '@movie-search/types';
 
 // BUG: Hardcoded API URL, should use env var
-const API_BASE_URL = 'http://localhost:3001/movies';
+const API_BASE_URL = process.env.NEXT_PUBLIC_MOVIES_API_URL ?? 'http://localhost:3001/movies';
 
 export const movieApi = {
     searchMovies: async (query: string, page: number = 1): Promise<SearchMoviesResponse> => {
         // BUG: No input validation
         // BUG: No error handling for network errors
         // BUG: Missing encodeURIComponent - will break with special characters
-        const response = await fetch(`${API_BASE_URL}/search?q=${query}&page=${page}`);
+        const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(query)}&page=${page}`);
 
         if (!response.ok) {
             throw new Error('Failed to search for movies. Please try again later.');
@@ -23,7 +23,7 @@ export const movieApi = {
         return data;
     },
 
-    getFavorites: async (page: number = 1): Promise<FavoritesResponse> => {
+    getFavorites: async (page: number = 1): Promise<SearchMoviesResponse> => {
         // BUG: No error handling
         const response = await fetch(`${API_BASE_URL}/favorites/list?page=${page}`);
 

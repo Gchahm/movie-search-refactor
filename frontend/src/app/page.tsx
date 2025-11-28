@@ -1,16 +1,25 @@
 'use client';
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import SearchBar from '@/components/searchBar';
-import {MoviesSearch} from "@/components/MoviesSearch";
+import {useSearchMovies} from "@/hooks/useMovies";
+import {QueryHandler} from "@/components/QueryHandler";
+import {MoviesList} from "@/components/MoviesList";
 
 
 export default function SearchPage() {
     const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
     };
+
+    const result = useSearchMovies(searchQuery, currentPage);
 
     return (
         <div className="min-h-screen bg-gradient-hero">
@@ -23,9 +32,18 @@ export default function SearchPage() {
                     </div>
                     <SearchBar onSearch={handleSearch}/>
                 </div>
-                <MoviesSearch
-                    searchQuery={searchQuery}
-                />
+                <QueryHandler queryResult={result}
+                              loadingText="Searching for movies..."
+                              pendingTitle="Start Your Search"
+                              pendingDescription="Search for your favorite movies and add them to your favorites"
+                              errorTitle="Error fetching movies">
+                    {
+                        (response) => (
+                            <MoviesList currentPage={currentPage} onPageClick={setCurrentPage} response={response}/>
+                        )
+                    }
+                </QueryHandler>
+
             </div>
         </div>
     );
