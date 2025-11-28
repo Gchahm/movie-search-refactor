@@ -1,5 +1,4 @@
 import {
-  IsIn,
   IsNotEmpty,
   IsString,
   IsUrl,
@@ -19,8 +18,8 @@ export class MovieDto {
   @IsString()
   year: string;
 
+  @ValidateIf((o: MovieDto) => o.poster !== "N/A")
   @IsString()
-  @ValidateIf((o) => o === "N/A")
   @IsUrl({ require_protocol: true })
   poster: string;
 }

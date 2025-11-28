@@ -349,7 +349,7 @@ describe("MoviesController (e2e)", () => {
           .send({
             title: "Batman Begins",
             imdbID: "tt0372784",
-            year: 2005,
+            year: "2005",
             poster: "not-a-url",
           })
           .expect(400)
@@ -370,7 +370,7 @@ describe("MoviesController (e2e)", () => {
           .send({
             title: "Batman Begins",
             imdbID: "tt0372784",
-            year: 2005,
+            year: "2005",
             poster: "example.com/poster.jpg",
           })
           .expect(400)
@@ -407,6 +407,18 @@ describe("MoviesController (e2e)", () => {
       });
     });
 
+    it("should return 200 when poster is N/A", () => {
+      return request(app.getHttpServer())
+        .post("/movies/favorites")
+        .send({
+          title: "Batman Begins",
+          imdbID: "tt0372784",
+          year: "2005",
+          poster: "N/A",
+        })
+        .expect(201);
+    });
+
     it("should return 200 or 201 when adding valid movie to favorites", () => {
       return request(app.getHttpServer())
         .post("/movies/favorites")
@@ -416,9 +428,7 @@ describe("MoviesController (e2e)", () => {
           year: "2005",
           poster: "https://example.com/poster.jpg",
         })
-        .expect((res) => {
-          expect([200, 201]).toContain(res.status);
-        });
+        .expect(201);
     });
 
     it("should handle adding duplicate movie (service returns error)", () => {
