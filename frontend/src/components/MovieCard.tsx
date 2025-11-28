@@ -9,19 +9,20 @@ export interface MovieCardProps {
 }
 
 const MovieCard = React.memo(({movie, isFavorite, isFavoriteLoading, onToggleFavorite}: MovieCardProps) => {
+    const hasPoster = Boolean(movie.poster && movie.poster.trim() !== "" && movie.poster !== "N/A");
+    const [imageError, setImageError] = React.useState(false);
+
     return (
         <div
             className="group relative bg-white rounded-lg overflow-hidden hover:mouse-pointer shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             <div className="relative aspect-[2/3] overflow-hidden">
-                {/* BUG: No error handling for broken images */}
-                {/* BUG: If poster URL is invalid or 404, image fails to load but no fallback */}
-                {/* BUG: Poster might be empty string "", which passes the check but shows broken image */}
-                {movie.poster && movie.poster !== "N/A" ? (
+                {hasPoster && !imageError ? (
                     <img
                         src={movie.poster}
                         alt={movie.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        // BUG: No onError handler for failed image loads
+                        onError={() => setImageError(true)}
+                        loading="lazy"
                     />
                 ) : (
                     <div className="w-full h-full bg-gray-100 flex items-center justify-center">
