@@ -1,26 +1,26 @@
-import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import {useQuery, useMutation, useQueryClient, UseQueryResult} from '@tanstack/react-query';
 import {movieApi} from '@/lib/api';
 import {useCallback} from 'react';
 import {usePathname, useSearchParams} from 'next/navigation';
+import {SearchMoviesResponse} from "@movie-search/types";
 
-// BUG: Missing proper TypeScript types
-export const useSearchMovies = (query: string, page: number = 1) => {
+export const useSearchMovies = (query: string, page: number = 1): UseQueryResult<SearchMoviesResponse> => {
     return useQuery({
         queryKey: ['movies', 'search', query, page],
         queryFn: () => movieApi.searchMovies(query, page),
         enabled: query.length > 0,
+        retry: 3,
+        retryDelay: 1000,
         // BUG: No error handling configuration
-        // BUG: No retry configuration
     });
 };
 
-export const useFavorites = (page: number = 1) => {
+export const useFavorites = (page: number = 1): UseQueryResult<SearchMoviesResponse> => {
     return useQuery({
         queryKey: ['movies', 'favorites', page],
         queryFn: () => movieApi.getFavorites(page),
-        // BUG: No error handling - will crash on 404
-        // BUG: Should handle empty favorites gracefully
-        // BUG: Query doesn't refetch when favorites are added/removed from other components
+        retry: 3,
+        retryDelay: 1000,
     });
 };
 
@@ -57,11 +57,9 @@ export const useAddToFavorites = () => {
     return useMutation({
         mutationFn: movieApi.addToFavorites,
         onSuccess: async () => {
-            // Only invalidate the query corresponding to the current route and params
             await invalidateCurrent();
         },
         // BUG: No error handling
-        // BUG: If backend returns HttpException object (not thrown), mutation succeeds but UI doesn't update
     });
 };
 

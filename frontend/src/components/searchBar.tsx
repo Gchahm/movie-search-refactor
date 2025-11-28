@@ -9,14 +9,13 @@ interface SearchBarProps {
 const SearchBar = ({ onSearch, initialQuery = "" }: SearchBarProps) => {
   const [query, setQuery] = useState(initialQuery);
 
-  // keep input in sync with external query (from URL)
   useEffect(() => {
     setQuery(initialQuery);
   }, [initialQuery]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // BUG: No validation, empty strings can be submitted
+    // Query is set to not trigger if query is empty so no need to validate empty string
     if (query) {
       onSearch(query);
     }
