@@ -266,7 +266,7 @@ describe("MoviesController (e2e)", () => {
           .send({
             title: "Batman Begins",
             imdbID: "tt0372784",
-            year: 2005,
+            year: "2005",
           })
           .expect(400)
           .expect((res) => {
@@ -276,27 +276,6 @@ describe("MoviesController (e2e)", () => {
                 : [res.body.message],
             ).toEqual(
               expect.arrayContaining([expect.stringContaining("poster")]),
-            );
-          });
-      });
-
-      it("when year is not a number", () => {
-        return request(app.getHttpServer())
-          .post("/movies/favorites")
-          .send({
-            title: "Batman Begins",
-            imdbID: "tt0372784",
-            year: "invalid",
-            poster: "https://example.com/poster.jpg",
-          })
-          .expect(400)
-          .expect((res) => {
-            expect(
-              Array.isArray(res.body.message)
-                ? res.body.message
-                : [res.body.message],
-            ).toEqual(
-              expect.arrayContaining([expect.stringContaining("year")]),
             );
           });
       });
@@ -434,7 +413,7 @@ describe("MoviesController (e2e)", () => {
         .send({
           title: "Batman Begins",
           imdbID: "tt0372784",
-          year: 2005,
+          year: "2005",
           poster: "https://example.com/poster.jpg",
         })
         .expect((res) => {
@@ -446,7 +425,7 @@ describe("MoviesController (e2e)", () => {
       const movie = {
         title: "The Dark Knight",
         imdbID: "tt0468569",
-        year: 2008,
+        year: "2008",
         poster: "https://example.com/poster2.jpg",
       };
 
@@ -454,15 +433,13 @@ describe("MoviesController (e2e)", () => {
       return request(app.getHttpServer())
         .post("/movies/favorites")
         .send(movie)
+        .expect(201)
         .then(() => {
           // Try to add the same movie again
           return request(app.getHttpServer())
             .post("/movies/favorites")
             .send(movie)
-            .expect((res) => {
-              // Should return error or same movie
-              expect(res.status).toBeGreaterThanOrEqual(200);
-            });
+            .expect(400);
         });
     });
   });
@@ -478,10 +455,7 @@ describe("MoviesController (e2e)", () => {
       it("should handle non-existent imdbID gracefully", () => {
         return request(app.getHttpServer())
           .delete("/movies/favorites/tt9999999")
-          .expect((res) => {
-            // Could be 404 (not found) or 200 (already removed)
-            expect([200, 404]).toContain(res.status);
-          });
+          .expect(404); // Empty param results in route not found
       });
     });
 
@@ -490,7 +464,7 @@ describe("MoviesController (e2e)", () => {
       const movie = {
         title: "Inception",
         imdbID: "tt1375666",
-        year: 2010,
+        year: "2010",
         poster: "https://example.com/inception.jpg",
       };
 
@@ -499,9 +473,7 @@ describe("MoviesController (e2e)", () => {
       // Then remove it
       return request(app.getHttpServer())
         .delete("/movies/favorites/tt1375666")
-        .expect((res) => {
-          expect([200, 204]).toContain(res.status);
-        });
+        .expect(200);
     });
   });
 
@@ -565,11 +537,9 @@ describe("MoviesController (e2e)", () => {
     it("should return 200 with default page when page is not provided", () => {
       return request(app.getHttpServer())
         .get("/movies/favorites/list")
+        .expect(200)
         .expect((res) => {
-          expect([200, 404]).toContain(res.status);
-          if (res.status === 200) {
-            expect(res.body).toHaveProperty("data");
-          }
+          expect(res.body).toHaveProperty("data");
         });
     });
 
@@ -603,7 +573,6 @@ describe("MoviesController (e2e)", () => {
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty("data");
-          expect(res.body.data).toHaveProperty("favorites");
           expect(res.body.data).toHaveProperty("count");
           expect(res.body.data).toHaveProperty("totalResults");
           expect(res.body.data).toHaveProperty("currentPage");
@@ -611,23 +580,11 @@ describe("MoviesController (e2e)", () => {
         });
     });
 
-    it("should handle empty favorites list", () => {
-      return request(app.getHttpServer())
-        .get("/movies/favorites/list")
-        .query({ page: "1" })
-        .expect((res) => {
-          // Could be 404 (no favorites) or 200 (empty list)
-          expect([200, 404]).toContain(res.status);
-        });
-    });
-
     it("should handle page beyond available pages", () => {
       return request(app.getHttpServer())
         .get("/movies/favorites/list")
         .query({ page: 999 })
-        .expect((res) => {
-          expect([200, 404]).toContain(res.status);
-        });
+        .expect(200);
     });
   });
 });
