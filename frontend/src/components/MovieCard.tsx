@@ -1,9 +1,9 @@
 import { Movie } from "@movie-search/types";
 
-interface MovieCardProps {
+export interface MovieCardProps {
   movie: Movie;
   isFavorite: boolean;
-  onToggleFavorite: (movie: Movie) => void;
+  onToggleFavorite: () => void;
 }
 
 // BUG: Not using React.memo for performance
@@ -33,7 +33,7 @@ const MovieCard = ({ movie, isFavorite, onToggleFavorite }: MovieCardProps) => {
         )}
         
         <button
-          onClick={() => onToggleFavorite(movie)}
+          onClick={() => onToggleFavorite()}
           // BUG: No loading state, can be clicked multiple times
           // BUG: No disabled state during mutation - rapid clicks cause race conditions
           // BUG: If mutation is in progress, button should be disabled

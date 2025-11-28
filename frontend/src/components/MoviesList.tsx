@@ -1,7 +1,6 @@
-import {Movie, SearchMoviesResponse} from "@movie-search/types";
-import MovieCard from "@/components/MovieCard";
+import {SearchMoviesResponse} from "@movie-search/types";
 import Pagination from "@/components/pagination";
-import {useAddToFavorites, useRemoveFromFavorites} from "@/hooks/useMovies";
+import {MovieCardContainer} from "./MovieCard.container";
 
 
 export type MoviesListProps = {
@@ -14,24 +13,6 @@ export type MoviesListProps = {
 export const MoviesList = (props: MoviesListProps) => {
     const {response, defaultFavoriteValue = false, currentPage, onPageClick} = props;
     const {data: {movies, totalPages}} = response;
-
-    const addToFavorites = useAddToFavorites();
-    const removeFromFavorites = useRemoveFromFavorites();
-
-    const handleToggleFavorite = async (movie: Movie) => {
-        // BUG: No error handling
-        // BUG: No loading state
-        // BUG: If mutation fails, UI state (isFavorite) is already updated optimistically
-        // BUG: No way to rollback if mutation fails
-        // BUG: Can be called multiple times rapidly, causing race conditions
-        if (movie.isFavorite) {
-            await removeFromFavorites.mutateAsync(movie.imdbID);
-        } else {
-            await addToFavorites.mutateAsync(movie);
-        }
-        // BUG: After mutation, searchResults still has old isFavorite value
-        // Query invalidation happens but component doesn't re-render with new data immediately
-    };
 
     const handlePageChange = (page: number) => {
         // BUG: No validation
@@ -54,11 +35,10 @@ export const MoviesList = (props: MoviesListProps) => {
                 <>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                         {movies.map((movie) => (
-                            <MovieCard
+                            <MovieCardContainer
                                 key={movie.imdbID}
                                 movie={movie}
                                 isFavorite={movie.isFavorite ?? defaultFavoriteValue}
-                                onToggleFavorite={handleToggleFavorite}
                             />
                         ))}
                     </div>
