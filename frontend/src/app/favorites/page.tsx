@@ -4,6 +4,7 @@ import {useFavorites} from "@/hooks/useMovies";
 import {QueryHandler} from "@/components/QueryHandler";
 import {MoviesList} from "@/components/MoviesList";
 import {useCurrentPage} from "@/hooks/useCurrentPage";
+import {useEffect} from "react";
 
 const Favorites = () => {
     const [currentPage, setCurrentPage] = useCurrentPage();
@@ -30,7 +31,8 @@ const Favorites = () => {
                               errorTitle="Error fetching movies">
                     {
                         (response) => (
-                            <MoviesList currentPage={currentPage} defaultFavoriteValue={true} onPageClick={setCurrentPage} response={response}/>
+                            <MoviesList currentPage={currentPage} defaultFavoriteValue={true}
+                                        onPageClick={setCurrentPage} response={response}/>
                         )
                     }
                 </QueryHandler>

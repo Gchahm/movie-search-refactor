@@ -47,16 +47,16 @@ export const MoviesList = (props: MoviesListProps) => {
                         ))}
                     </div>
 
-                    {totalPages > 1 && (
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
-                    )}
                 </>
             )
             }
+            {totalPages > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                />
+            )}
         </>
     )
 }
