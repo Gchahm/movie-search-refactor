@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsString, IsUrl, Matches } from "class-validator";
+import {
+  IsIn,
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  Matches,
+  ValidateIf,
+} from "class-validator";
 
 export class MovieDto {
   @IsString()
@@ -12,6 +19,8 @@ export class MovieDto {
   @IsString()
   year: string;
 
+  @IsString()
+  @ValidateIf((o) => o === "N/A")
   @IsUrl({ require_protocol: true })
   poster: string;
 }
